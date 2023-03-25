@@ -2,7 +2,7 @@ from typing import List, Dict
 
 import fastapi
 
-from fastapi import status
+from fastapi import status, Path
 from pydantic import BaseModel
 
 from app import database
@@ -29,8 +29,14 @@ class QuestionModel(BaseModel):
     response_description="Question details",
     response_model=QuestionModel,
     status_code=status.HTTP_200_OK,
+    responses={
+        400: {
+            "description": "Bad Request",
+            "content": {"application/json": {"example": {"error": "Variable uuid '1234' was not found"}}}
+        }
+    }
 )
-def get_variable_options(variable_uuid: str):
+def get_variable_options(variable_uuid: str = Path(title="Id of the variable", description="UUID of the variable", example="22d7bdb0-2172-11e4-813c-005056900044")):
     variable_options = database.get_variable_options(variable_uuid)
 
     if not variable_options:
@@ -39,6 +45,10 @@ def get_variable_options(variable_uuid: str):
             detail=f"Variable uuid '{variable_uuid}' was not found",
         )
 
+    return variable_options_to_question_model(variable_options, variable_uuid)
+
+
+def variable_options_to_question_model(variable_options, variable_uuid):
     label = variable_options[0].variable_label
     question = variable_options[0].variable_question
     options = [
@@ -50,7 +60,6 @@ def get_variable_options(variable_uuid: str):
         for option in variable_options
     ]
     variable_type = variable_options[0].variable_type
-
     return QuestionModel(
         label=label,
         question=question,
@@ -65,8 +74,14 @@ def get_variable_options(variable_uuid: str):
     response_description="Answer counts",
     response_model=Dict[int, int],
     status_code=status.HTTP_200_OK,
+    responses={
+        400: {
+            "description": "Bad Request",
+            "content": {"application/json": {"example": {"error": "Variable uuid '1234' was not found"}}}
+        }
+    }
 )
-def get_variable_options(variable_uuid: str):
+def get_variable_options(variable_uuid: str = Path(title="Id of the variable", description="UUID of the variable", example="22d7bdb0-2172-11e4-813c-005056900044")):
     counts = database.get_variable_answers_counts(variable_uuid)
 
     if not counts:

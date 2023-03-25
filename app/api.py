@@ -33,6 +33,12 @@ class QuestionModel(BaseModel):
 def get_variable_options(variable_uuid: str):
     variable_options = database.get_variable_options(variable_uuid)
 
+    if not variable_options:
+        raise fastapi.HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Variable uuid '{variable_uuid}' was not found",
+        )
+
     label = variable_options[0].variable_label
     question = variable_options[0].variable_question
     options = [

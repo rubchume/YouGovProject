@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 import fastapi
 
@@ -58,3 +58,21 @@ def get_variable_options(variable_uuid: str):
         type=variable_type,
         uuid=variable_uuid,
     )
+
+
+@app.get(
+    "/variables/{variable_uuid}/counts",
+    response_description="Answer counts",
+    response_model=Dict[int, int],
+    status_code=status.HTTP_200_OK,
+)
+def get_variable_options(variable_uuid: str):
+    counts = database.get_variable_answers_counts(variable_uuid)
+
+    if not counts:
+        raise fastapi.HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Variable uuid '{variable_uuid}' was not found",
+        )
+
+    return counts

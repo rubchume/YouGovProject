@@ -58,3 +58,44 @@ class ApiTests(unittest.TestCase):
                 "detail": "Variable uuid 'non-valid-id' was not found"
             }
         )
+
+    def test_get_counts_of_answers_for_non_existing_variable_returns_error(self):
+        # When
+        response = self.client.get("/variables/non-valid-id/counts")
+        # Then
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {
+                "detail": "Variable uuid 'non-valid-id' was not found"
+            }
+        )
+
+    def test_get_counts_of_answers_when_there_are_no_answers(self):
+        # When
+        response = self.client.get("/variables/015dbd00-a4f6-11e7-9f92-d298beabf694/counts")
+        # Then
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+            }
+        )
+
+    def test_get_counts_of_answers(self):
+        # When
+        response = self.client.get("/variables/22d7bdb0-2172-11e4-813c-005056900044/counts")
+        # Then
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "1": 195,
+                "2": 224,
+                "3": 32,
+                "4": 9
+            }
+        )
